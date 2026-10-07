@@ -133,15 +133,12 @@ repo-root/
 
 ### 2.4. Реляционная модель данных (PostgreSQL)
 
-```mermaid
 erDiagram
-    USERS ||--o{ PROJECTS : "owns"
-    PROJECTS ||--o{ MATERIALS : "tracks files in git"
-    PROJECTS ||--o{ RUNS : "executes"
-    PROJECTS ||--o{ CTF_FILES : "contains manifests"
-
-    RUNS ||--o{ EVENTS : "emits"
-    RUNS ||--o{ ARTIFACTS : "commits result to git"
+    USERS ||--o{ PROJECTS : "владеет"
+    PROJECTS ||--o{ RUNS : "запускает"
+    RUNS ||--o{ CONTAINERS : "содержит стек агентов"
+    RUNS ||--o{ ARTIFACTS : "порождает артефакты"
+    PROJECTS ||--o{ ARTIFACTS : "содержит артефакты"
 
     USERS {
         uuid id PK
@@ -155,45 +152,24 @@ erDiagram
         uuid owner_id FK
         string title
         string git_repo_url
-        string git_branch
         string status
-        jsonb context_data
-        int schema_version
-        timestamp created_at
-        timestamp updated_at
-    }
-
-    MATERIALS {
-        uuid id PK
-        uuid project_id FK
-        string filename
-        string mime_type
-        bigint size_bytes
-        string git_path
-        string commit_sha
-        timestamp created_at
     }
 
     RUNS {
         uuid id PK
         uuid project_id FK
         string status
-        int current_sequence
         uuid last_artifact_id FK
-        timestamp started_at
-        timestamp finished_at
-        timestamp created_at
     }
 
-    EVENTS {
+    CONTAINERS {
         uuid id PK
         uuid run_id FK
-        uuid project_id FK
-        int sequence
-        string type
-        jsonb actor
-        jsonb payload
-        timestamp created_at
+        string docker_container_id
+        string agent_role
+        string image_tag
+        string network_name
+        string status
     }
 
     ARTIFACTS {
@@ -201,27 +177,10 @@ erDiagram
         uuid project_id FK
         uuid run_id FK
         string title
-        string mime_type
         string git_path
         string commit_sha
         string git_tree_url
-        bigint size_bytes
-        timestamp created_at
     }
-
-    CTF_FILES {
-        uuid id PK
-        uuid project_id FK
-        uuid run_id FK
-        string kind
-        string git_path
-        string commit_sha
-        boolean is_internal
-        timestamp created_at
-    }
-```
-
----
 
 ### 2.5. Спецификация таблиц PostgreSQL
 
